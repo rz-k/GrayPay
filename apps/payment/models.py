@@ -24,5 +24,7 @@ class Payment(LifecycleModel):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    response_data = models.JSONField(null=True, blank=True)
+
     def __str__(self):
         return self.full_name
