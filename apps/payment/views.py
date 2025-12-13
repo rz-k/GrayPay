@@ -1,10 +1,12 @@
+from django.db import transaction
 from django.shortcuts import redirect, render
 from django.views import View
 
 from apps.payment.models import Payment
+from apps.payment.zarin import CreatePayment, VerifyPayment
 from utils.load_env import env
+from utils.logger import deposit_error_logger, deposit_logger
 from utils.utils import generate_payment_id
-from apps.payment.zarin import CreatePayment
 
 
 class PaymentView(View):
@@ -35,8 +37,85 @@ class PaymentView(View):
             order_id=order_id,
             authority=response_create_payment['data']['authority']
         )
-        #<QueryDict: {'csrfmiddlewaretoken': ['n2f78CqMPNZOzPksfOe1DDeMR4ExWbdwhMz9lqzjvFuyD6i4IqqrHPf1Vp0k3upt'], 'full_name': ['یرریتت'], 'phone': [''], 'amount': ['500000'], 'description': ['']}>
-        # print(request.data)
-        # data = request.POST.get("my_field")
         return redirect(redirect_payment_url)
 
+class VerifyPaymentView(View):
+    template_name = "payment/payment.html"
+    template_failed = "payment/failed.html"
+    template_success = "payment/success.html"
+
+    def get(self, request):
+        authority = request.GET.get("Authority")
+        status = request.GET.get("Status")
+        with transaction.atomic():
+            try:
+                payment = (
+                    Payment.objects
+                    .select_for_update()
+                    .get(
+                        authority=authority,
+                        status=Payment.PaymentStatus.PENDING
+                    )
+                )
+            except Payment.DoesNotExist:
+                deposit_error_logger.warning(
+                    "Payment not found or already processed | authority=%s",
+                    authority
+                )
+                return redirect("payment:payment-create")
+
+            except Exception as e:
+                deposit_error_logger.exception(
+                    f"Exception while verifying payment: {e} | authority=%s",
+                    authority
+                )
+                context = {
+                    "error": "خطایی رخ داده است",
+                    "payment": payment
+                }
+                return render(request, self.template_failed, context)
+
+            if status == "NOK":
+                deposit_logger.info(
+                    "Payment canceled by gateway | authority=%s",
+                    authority
+                )
+                context = {
+                    "error": "خطای نامشخص",
+                    "payment": payment
+                }
+                return render(request, self.template_failed, context)
+
+
+            verify = VerifyPayment()
+            response_verify = verify.verify_payment(amount=payment.amount, authority=payment.authority)
+            if not response_verify:
+                deposit_error_logger.error(
+                    "Empty verify response | authority=%s",
+                    authority
+                )
+                context = {
+                    "error": "خطای نامشخص",
+                    "payment": payment
+                }
+                return render(request, self.template_failed, context)
+
+            if response_verify['data']['code'] == 100:
+                payment.status=Payment.PaymentStatus.SUCCESS
+                payment.response_data=response_verify
+                payment.save()
+                deposit_logger.info(
+                    "Payment verified successfully | authority=%s | amount=%s",
+                    authority,
+                    payment.amount
+                )
+                context = {"payment": payment}
+                return render(request, self.template_success, context)
+
+            deposit_error_logger.warning(
+                "Payment verification failed | authority=%s | code=%s | response=%s",
+                authority,
+                response_verify['data']['code'],
+                response_verify
+            )
+        return redirect("payment:payment-create")
