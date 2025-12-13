@@ -3,10 +3,10 @@ from django_lifecycle import LifecycleModel
 
 
 class Payment(LifecycleModel):
-    class PaymentStatus(models.Choices):
-        PENDING = "pending"
-        SUCCESS = "success"
-        FAILED = "failed"
+    class PaymentStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        SUCCESS = "success", "Success"
+        FAILED = "failed", "Failed"
 
     full_name = models.CharField(max_length=150, null=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
@@ -27,4 +27,4 @@ class Payment(LifecycleModel):
     response_data = models.JSONField(null=True, blank=True)
 
     def __str__(self):
-        return self.full_name
+        return self.full_name or f"Payment #{self.id}"
