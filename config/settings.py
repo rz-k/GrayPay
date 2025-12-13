@@ -13,6 +13,7 @@ SECRET_KEY = env.get("SECRET_KEY")
 DEBUG = env.get("DEBUG", True)
 ALLOWED_HOSTS = env.get("ALLOWED_HOSTS", "*").split(",")
 FORCE_SCRIPT_NAME = env.get("FORCE_SCRIPT_NAME")
+CSRF_TRUSTED_ORIGINS = env.get("CSRF_TRUSTED_ORIGINS", "").split(",")
 
 AUTH_USER_MODEL = "account.User"
 
@@ -107,3 +108,51 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "verbose": {
+            "format": "[{levelname}] {asctime} {name} — {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname}: {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        "file_deposit": {
+            "class": "logging.FileHandler",
+            "filename": LOG_DIR / "deposit.log",
+            "formatter": "verbose",
+        },
+        "file_deposit_error": {
+            "class": "logging.FileHandler",
+            "filename": LOG_DIR / "deposit_error.log",
+            "formatter": "verbose",
+        }
+    },
+    "loggers": {
+        "deposit": {
+            "handlers": ["file_deposit", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "deposit_error": {
+            "handlers": ["file_deposit_error", "console"],
+            "level": "INFO",
+            "propagate": False,
+        }
+    },
+}
