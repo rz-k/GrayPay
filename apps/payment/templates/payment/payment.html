@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load humanize %}
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8" />
@@ -112,7 +113,7 @@
 </head>
 <body>
 
-<form class="card" method="post" action="{% url 'payment:payment' %}">
+<form class="card" method="post" action="{% url 'payment:payment-create' %}">
     {% csrf_token %}
 
     <h1>🤍 حمایت مالی از Gray</h1>
@@ -134,25 +135,25 @@
         placeholder="09xxxxxxxxx"
     />
 
-    <label>مبلغ (ریال)</label>
+    <label>مبلغ (تومان)</label>
     <input
         type="number"
         id="amount"
         name="amount"
-        placeholder="حداقل 100,000 ریال"
-        min="100000"
+        placeholder="حداقل {{minimum_payment|intcomma}} تومان"
+        min={{minimum_payment}}
         required
     />
 
     <div id="amount-warning" class="warning">
-        حداقل مبلغ قابل پرداخت ۱۰۰٬۰۰۰ ریال است
+        حداقل مبلغ قابل پرداخت {{minimum_payment|intcomma}} تومان است
     </div>
 
     <div class="amounts">
-        <button type="button" class="amount-btn" onclick="setAmount(500000)">500,000</button>
-        <button type="button" class="amount-btn" onclick="setAmount(750000)">750,000</button>
-        <button type="button" class="amount-btn" onclick="setAmount(1000000)">1,000,000</button>
-        <button type="button" class="amount-btn" onclick="setAmount(2000000)">2,000,000</button>
+        <button type="button" class="amount-btn" onclick="setAmount(500000)">50,000</button>
+        <button type="button" class="amount-btn" onclick="setAmount(750000)">75,000</button>
+        <button type="button" class="amount-btn" onclick="setAmount(1000000)">100,000</button>
+        <button type="button" class="amount-btn" onclick="setAmount(2000000)">200,000</button>
     </div>
 
     <label>توضیحات (اختیاری)</label>
@@ -180,7 +181,7 @@
         const amount = parseInt(amountInput.value || 0);
 
         // هشدار مبلغ
-        if (amount > 0 && amount < 100000) {
+        if (amount > 0 && amount < {{minimum_payment}}) {
             warning.style.display = 'block';
         } else {
             warning.style.display = 'none';
@@ -189,7 +190,7 @@
         // فعال‌سازی دکمه
         if (
             fullNameInput.value.trim() !== '' &&
-            amount >= 100000
+            amount >= {{minimum_payment}}
         ) {
             submitBtn.classList.add('active');
             submitBtn.disabled = false;
