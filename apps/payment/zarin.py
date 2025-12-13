@@ -1,6 +1,7 @@
 import requests
 
 from utils.load_env import env
+from apps.payment.models import Payment
 
 
 class BaseZarin:
@@ -12,7 +13,6 @@ class BaseZarin:
 class CreatePayment(BaseZarin):
 
     def create_payment(self, amount, description, phone, order_id):
-        print(env.BASE_SITE_ADDRESS + env.VERIFY_CALLBACK_ROUTE)
         data = {
             "merchant_id": self.MERCHANT,
             "amount": str(amount),
@@ -31,4 +31,18 @@ class CreatePayment(BaseZarin):
             js = response.json()
             if js['data']['code'] == 100:
                 return js
+        return False
+
+class VerifyPayment(BaseZarin):
+
+    def verify_payment(self, amount, authority):
+        data = {
+            "merchant_id": self.MERCHANT,
+            "amount": str(amount),
+            "authority": authority
+        }
+        response = requests.post(self.VERIFY_PAYMENT_URL, json=data, timeout=20)
+        if response.status_code == 200:
+            js = response.json()
+            return js
         return False
