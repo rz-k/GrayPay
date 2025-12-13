@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <title>GrayDonate | حمایت مالی</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        body {
+            font-family: Vazirmatn, Tahoma, sans-serif;
+            background: #0f1115;
+            color: #e5e7eb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: #161a22;
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,.4);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        label {
+            font-size: 14px;
+            margin-top: 14px;
+            display: block;
+            color: #9ca3af;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin-top: 6px;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: #0f1115;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        .amounts {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .amount-btn {
+            background: #1f2937;
+            border: 1px solid #374151;
+            color: #e5e7eb;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .amount-btn:hover {
+            background: #374151;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: #374151;
+            color: #9ca3af;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: not-allowed;
+            transition: .2s;
+        }
+
+        .submit-btn.active {
+            background: #ffffff;
+            color: #111827;
+            cursor: pointer;
+        }
+
+        .hint {
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 12px;
+        }
+
+        .warning {
+            display: none;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #f87171;
+        }
+    </style>
+</head>
+<body>
+
+<form class="card" method="post" action="{% url 'payment:start' %}">
+    {% csrf_token %}
+
+    <h1>🤍 حمایت مالی از Gray</h1>
+
+    <label>نام و نام خانوادگی</label>
+    <input
+        type="text"
+        id="full_name"
+        name="full_name"
+        placeholder="مثلاً علی رضایی"
+        required
+    />
+
+    <label>شماره تلفن (اختیاری)</label>
+    <input
+        type="tel"
+        id="phone"
+        name="phone"
+        placeholder="09xxxxxxxxx"
+    />
+
+    <label>مبلغ (ریال)</label>
+    <input
+        type="number"
+        id="amount"
+        name="amount"
+        placeholder="حداقل 100,000 ریال"
+        min="100000"
+        required
+    />
+
+    <div id="amount-warning" class="warning">
+        حداقل مبلغ قابل پرداخت ۱۰۰٬۰۰۰ ریال است
+    </div>
+
+    <div class="amounts">
+        <button type="button" class="amount-btn" onclick="setAmount(500000)">500,000</button>
+        <button type="button" class="amount-btn" onclick="setAmount(750000)">750,000</button>
+        <button type="button" class="amount-btn" onclick="setAmount(1000000)">1,000,000</button>
+        <button type="button" class="amount-btn" onclick="setAmount(2000000)">2,000,000</button>
+    </div>
+
+    <label>توضیحات (اختیاری)</label>
+    <textarea name="description" placeholder="پیام یا توضیح شما..."></textarea>
+
+    <button class="submit-btn" type="submit" disabled>
+        پرداخت
+    </button>
+
+    <div class="hint">پرداخت امن • درگاه بانکی</div>
+</form>
+
+<script>
+    const fullNameInput = document.getElementById('full_name');
+    const amountInput = document.getElementById('amount');
+    const submitBtn = document.querySelector('.submit-btn');
+    const warning = document.getElementById('amount-warning');
+
+    function setAmount(value) {
+        amountInput.value = value;
+        checkForm();
+    }
+
+    function checkForm() {
+        const amount = parseInt(amountInput.value || 0);
+
+        // هشدار مبلغ
+        if (amount > 0 && amount < 100000) {
+            warning.style.display = 'block';
+        } else {
+            warning.style.display = 'none';
+        }
+
+        // فعال‌سازی دکمه
+        if (
+            fullNameInput.value.trim() !== '' &&
+            amount >= 100000
+        ) {
+            submitBtn.classList.add('active');
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.classList.remove('active');
+            submitBtn.disabled = true;
+        }
+    }
+
+    fullNameInput.addEventListener('input', checkForm);
+    amountInput.addEventListener('input', checkForm);
+</script>
+
+</body>
+</html>
