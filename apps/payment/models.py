@@ -1,7 +1,8 @@
 from django.db import models
+from django_lifecycle import LifecycleModel
 
 
-class Payment(models.Model):
+class Payment(LifecycleModel):
     class PaymentStatus(models.Choices):
         PENDING = "pending"
         SUCCESS = "success"
@@ -22,3 +23,6 @@ class Payment(models.Model):
     order_id = models.CharField(max_length=100, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.full_name
