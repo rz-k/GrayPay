@@ -1,7 +1,9 @@
 from django.db import models
-from django_lifecycle import LifecycleModel, AFTER_SAVE, hook
-from django_lifecycle.conditions import WhenFieldValueWas, WhenFieldValueIs
+from django_lifecycle import AFTER_SAVE, LifecycleModel, hook
+from django_lifecycle.conditions import WhenFieldValueIs, WhenFieldValueWas
+
 from utils.utils import run_function_in_thread, send_payment_to_telegram
+
 
 class Payment(LifecycleModel):
     class PaymentStatus(models.TextChoices):

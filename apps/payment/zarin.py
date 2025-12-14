@@ -1,7 +1,6 @@
 import requests
 
 from utils.load_env import env
-from apps.payment.models import Payment
 
 
 class BaseZarin:

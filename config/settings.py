@@ -107,7 +107,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
-
+STATIC_ROOT = Path.joinpath(BASE_DIR, 'static_root')
 STATIC_URL = 'static/'
 
 LOG_DIR = BASE_DIR / "logs"
