@@ -1,11 +1,10 @@
-import random
 import threading
-from decimal import Decimal
 from uuid import uuid4
-from utils.load_env import env
 
-from django.utils.timezone import now
 import requests
+from django.utils.timezone import now
+
+from utils.load_env import env
 from utils.logger import logger
 
 
