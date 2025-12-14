@@ -30,6 +30,7 @@ INSTALLED_APPS+=[
     "apps.account",
     "apps.payment",
     "django.contrib.humanize",
+    "django_lifecycle_checks",
 ]
 
 MIDDLEWARE = [
