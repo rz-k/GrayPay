@@ -2,8 +2,11 @@ import random
 import threading
 from decimal import Decimal
 from uuid import uuid4
+from utils.load_env import env
 
 from django.utils.timezone import now
+import requests
+from utils.logger import logger
 
 
 def update_object(obj, **kwargs) -> None:
@@ -12,13 +15,6 @@ def update_object(obj, **kwargs) -> None:
     """
     if kwargs:
         obj.__class__.objects.filter(pk=obj.pk).update(**kwargs)
-
-
-def decimal_rounded_average_score(number):
-    average_score = Decimal(number)
-    rounded_average_score = average_score.quantize(Decimal("0.00"))
-    return rounded_average_score
-
 
 def generate_payment_id():
     """
@@ -29,24 +25,6 @@ def generate_payment_id():
     uid = str(uuid4())[:6].upper()
     return f"PAY-{date_str}-{uid}"
 
-
-def assign_boxes():
-    numbers = list(range(1, 11))
-    random.shuffle(numbers)
-
-    bombs = numbers[:6]
-    safe = numbers[6:8]
-    prizes = numbers[8:]
-    result = {}
-    for n in bombs:
-        result[n] = "bomb"
-    for n in safe:
-        result[n] = "safe"
-    for n in prizes:
-        result[n] = "prize"
-
-    return result
-
 def run_function_in_thread(func, *args, **kwargs):
     """
         Run the given function in a separate thread.
@@ -54,3 +32,44 @@ def run_function_in_thread(func, *args, **kwargs):
     thread = threading.Thread(target=func, args=args, kwargs=kwargs)
     thread.start()
     return thread
+
+def build_payment_message(payment):
+    return (
+        "💳 <b>New Payment</b>\n\n"
+        f"👤 Name: <b>{payment.full_name}</b>\n"
+        f"📞 Phone: <b>{payment.phone}</b>\n"
+        f"💰 Amount: <b>{payment.amount:,} Toman</b>\n"
+        f"🆔 Authority: <code>{payment.authority}</code>\n"
+        f"📦 Order ID: <code>{payment.order_id}</code>\n"
+        f"📝 Description: <b>{payment.description}</b>\n"
+    )
+
+def send_payment_to_telegram(payment):
+    proxy = None
+    if env.get("PROXY_SOCKS"):
+        proxy = {
+            "http": f"socks5h://{env.get('PROXY_SOCKS')}",
+            "https": f"socks5h://{env.get('PROXY_SOCKS')}",
+        }
+
+    url = f"https://api.telegram.org/bot{env.get('TOKEN')}/sendMessage"
+    payload = {
+        "chat_id": env.get("ACTION_CHANNEL"),
+        "text": build_payment_message(payment),
+        "parse_mode": "html",
+    }
+
+    try:
+        response = requests.get(
+            url,
+            params=payload,
+            proxies=proxy,
+            timeout=15
+        )
+        response.raise_for_status()
+
+    except Exception:
+        logger.error(
+            "Telegram notification failed for payment %s",
+            payment.id
+        )

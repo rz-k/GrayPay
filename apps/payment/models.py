@@ -1,6 +1,7 @@
 from django.db import models
-from django_lifecycle import LifecycleModel
-
+from django_lifecycle import LifecycleModel, AFTER_SAVE, hook
+from django_lifecycle.conditions import WhenFieldValueWas, WhenFieldValueIs
+from utils.utils import run_function_in_thread, send_payment_to_telegram
 
 class Payment(LifecycleModel):
     class PaymentStatus(models.TextChoices):
@@ -28,3 +29,13 @@ class Payment(LifecycleModel):
 
     def __str__(self):
         return self.full_name or f"Payment #{self.id}"
+
+    @hook(
+        AFTER_SAVE,
+        condition=(
+            WhenFieldValueWas("status", value="pending")
+            & WhenFieldValueIs("status", value="success")
+        )
+    )
+    def telegram_notify(self):
+        run_function_in_thread(send_payment_to_telegram, self)
