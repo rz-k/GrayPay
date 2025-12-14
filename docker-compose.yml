@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  web:
+    container_name: gray-pay
+    hostname: gray_pay
+    build: .
+    command: "bash entrypoint.sh"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - .:/app
+    ports:
+      - 8030:8000
+
+    restart: "always"
+
+    env_file:
+      - .env.ini

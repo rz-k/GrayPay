@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+{% load humanize %}
+
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پرداخت ناموفق ❌</title>
+    <style>
+        body {
+            font-family: Tahoma, sans-serif;
+            background-color: #ffe6e6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 350px;
+        }
+        .failed-icon {
+            font-size: 60px;
+            color: #dc3545;
+        }
+        h1 {
+            color: #dc3545;
+        }
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .order-id {
+            font-weight: bold;
+            color: #333;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="failed-icon">❌</div>
+        <h1>پرداخت شما ناموفق بود!</h1>
+        {% if error %}
+            <p>خطا: {{ error }}</p>
+        {% endif %}
+        {% if payment %}
+            <p>مبلغ: {{ payment.amount|intcomma }} تومان</p>
+            <p>شماره سفارش: <span class="order-id">{{ payment.order_id }}</span></p>
+        {% endif %}
+        <a href="/payment/" class="button">بازگشت به خانه</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+{% load humanize %}
+
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پرداخت موفق ✅</title>
+    <style>
+        body {
+            font-family: Tahoma, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 350px;
+        }
+        .success-icon {
+            font-size: 60px;
+            color: #28a745;
+        }
+        h1 {
+            color: #28a745;
+        }
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .order-id {
+            font-weight: bold;
+            color: #333;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="success-icon">✅</div>
+        <h1>پرداخت شما با موفقیت انجام شد!</h1>
+        <p>مبلغ پرداختی: {{ payment.amount|intcomma }} تومان</p>
+        <p>ایدی پرداخت: <span class="order-id">{{ payment.order_id }}</span></p>
+        <a href="/payment/" class="button">بازگشت به خانه</a>
+    </div>
+</body>
+</html>

@@ -11,3 +11,6 @@ wheels/
 .python-version
 pyproject.toml
 uv.lock
+.env.ini
+db.sqlite3
+logs/*
