@@ -84,6 +84,8 @@ class VerifyPaymentView(View):
                     "error": "خطای نامشخص",
                     "payment": payment
                 }
+                payment.status=Payment.PaymentStatus.FAILED
+                payment.save()
                 return render(request, self.template_failed, context)
 
 
@@ -98,6 +100,8 @@ class VerifyPaymentView(View):
                     "error": "خطای نامشخص",
                     "payment": payment
                 }
+                payment.status=Payment.PaymentStatus.FAILED
+                payment.save()
                 return render(request, self.template_failed, context)
 
             if response_verify['data']['code'] == 100:
