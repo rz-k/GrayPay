@@ -63,9 +63,20 @@ ACTION_CHANNEL=<channel chant_id channel>
 
 [Optional proxy]
 PROXY_SOCKS=
+```
+## 🧪 Running Tests
+
+GrayPay comes with automated tests written using **pytest**.  
+To run all tests, simply execute:
+
+```bash
+pytest
+```
+Make sure your project dependencies are installed before running the tests.
+
+
 Running the Project
 Use Docker Compose to build and run the project:
-```
 
 ```bash
 docker compose up --build -d
